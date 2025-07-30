@@ -1,544 +1,350 @@
-import React, { useState, useEffect } from 'react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DC: Dark Legion Champion Roster</title>
+    <!-- Tailwind CSS CDN for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to override or extend Tailwind for specific elements */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a2e; /* Dark background */
+            color: #e0e0e0; /* Light text */
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-// Main App component
-const App = () => {
-  // State for mobile navigation visibility
-  const [isNavOpen, setIsNavOpen] = useState(false);
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* Five champions per row for desktop */
+            gap: 8px; /* Small gap between cards */
+            padding: 20px;
+            justify-content: center;
+        }
 
-  // Toggle mobile navigation
-  const toggleNav = () => {
-    setIsNavOpen(!isNavOpen);
-  };
+        .character-card {
+            position: relative;
+            background-color: #0f3460; /* Dark blue card background */
+            border-radius: 10px;
+            overflow: visible; /* Ensures tooltip is not clipped */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease-in-out;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            height: 220px; /* Adjusted height to accommodate taller portrait image */
+            justify-content: space-between; /* Distribute content vertically */
+        }
 
-  return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 font-inter">
-      {/* Navbar Component */}
-      <Navbar isNavOpen={isNavOpen} toggleNav={toggleNav} />
+        .character-card:hover {
+            transform: scale(1.08); /* Slightly larger grow effect */
+        }
 
-      {/* Main content area */}
-      <main className="relative z-10">
-        {/* Hero Section */}
-        <HeroSection />
+        .character-card img {
+            width: 100%; /* Image fills the width of the card */
+            height: 160px; /* Adjusted height for portrait image */
+            object-fit: cover;
+            border: 3px solid #e94560; /* Red border for accent */
+            margin-bottom: 5px; /* Adjusted margin for better fit */
+            border-radius: 5px; /* Slightly rounded corners for the image itself */
+        }
 
-        {/* About Section */}
-        <AboutSection />
+        .character-card h3 {
+            margin: 0;
+            color: #bae8e8; /* Light blue for name */
+            text-align: center;
+            font-size: 1.1em;
+            white-space: nowrap; /* Prevent name from wrapping */
+            overflow: hidden; /* Hide overflow if name is too long */
+            text-overflow: ellipsis; /* Add ellipsis for long names */
+        }
 
-        {/* Game Features Section */}
-        <GameFeaturesSection />
+        /* Tooltip styles */
+        .tooltip {
+            visibility: hidden;
+            background-color: rgba(0, 0, 0, 0.9); /* Darker, slightly transparent background */
+            color: #fff;
+            text-align: left;
+            border-radius: 8px; /* More rounded corners */
+            padding: 12px 18px;
+            position: absolute;
+            z-index: 10; /* Ensure tooltip is on top */
+            bottom: calc(100% + 15px); /* Position above the portrait with more space */
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            min-width: 220px; /* Slightly wider tooltip */
+            max-width: 300px; /* Max width to prevent overly wide tooltips */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6); /* Stronger shadow */
+        }
 
-        {/* Hero Grid Section - NEW */}
-        <HeroGridSection />
+        .character-card:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
 
-        {/* Team Section */}
-        <TeamSection />
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%; /* Arrow pointing down from tooltip */
+            left: 50%;
+            margin-left: -8px; /* Adjust for larger arrow */
+            border-width: 8px; /* Larger arrow */
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+        }
 
-        {/* News Section */}
-        <NewsSection />
-      </main>
+        .tooltip p {
+            margin: 4px 0; /* Slightly less margin for compact info */
+            font-size: 0.95em; /* Slightly larger font */
+            line-height: 1.4;
+        }
 
-      {/* Footer Component */}
-      <Footer />
-    </div>
-  );
-};
+        .tooltip strong {
+            color: #e94560; /* Accent color for labels */
+        }
 
-// Navbar Component
-const Navbar = ({ isNavOpen, toggleNav }) => {
-  return (
-    <nav className="fixed w-full bg-gray-950 bg-opacity-80 backdrop-blur-sm z-50 shadow-lg py-4 px-6 md:px-12">
-      <div className="container mx-auto flex justify-between items-center">
-        {/* Logo/Site Title */}
-        <a href="#" className="text-2xl font-bold text-purple-400 hover:text-purple-300 transition-colors duration-300">
-          Mystic Mayhem
-        </a>
+        /* Responsive adjustments */
+        @media (max-width: 1024px) { /* Adjust for larger tablets/smaller desktops */
+            .character-grid {
+                grid-template-columns: repeat(4, 1fr); /* Four champions per row */
+                gap: 7px;
+            }
+            .character-card {
+                height: 200px; /* Adjusted height for smaller screens */
+            }
+            .character-card img {
+                height: 130px; /* Adjusted height for smaller screens */
+            }
+        }
 
-        {/* Desktop Navigation Links */}
-        <div className="hidden md:flex space-x-8">
-          <NavLink href="#home" text="Home" />
-          <NavLink href="#about" text="About" />
-          <NavLink href="#features" text="Features" />
-          <NavLink href="#heroes" text="Heroes" /> {/* Added Heroes link */}
-          <NavLink href="#team" text="Team" />
-          <NavLink href="#news" text="News" />
-          <NavLink href="#contact" text="Contact" />
-        </div>
+        @media (max-width: 768px) {
+            .character-grid {
+                grid-template-columns: repeat(3, 1fr); /* Three champions per row */
+                gap: 6px;
+            }
+            .character-card {
+                height: 180px;
+            }
+            .character-card img {
+                height: 110px; /* Adjusted height for smaller screens */
+            }
+            .character-card h3 {
+                font-size: 1em;
+            }
+            .tooltip {
+                min-width: 180px;
+                padding: 10px 12px;
+                font-size: 0.9em;
+            }
+        }
 
-        {/* Mobile Menu Button */}
-        <button onClick={toggleNav} className="md:hidden text-gray-100 focus:outline-none">
-          {isNavOpen ? (
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          ) : (
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-            </svg>
-          )}
-        </button>
-      </div>
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .character-grid {
+                grid-template-columns: repeat(2, 1fr); /* Two champions per row */
+                gap: 4px;
+            }
+            .character-card {
+                height: 160px;
+                padding: 8px;
+            }
+            .character-card img {
+                height: 90px; /* Adjusted height for smallest screens */
+            }
+            .character-card h3 {
+                font-size: 0.9em;
+            }
+            .tooltip {
+                min-width: 150px;
+                padding: 8px 10px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 p-5">
+    <header class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-red-500 mb-2">DC: Dark Legion Champion Roster</h1>
+        <p class="text-lg text-gray-300">Explore the heroes and villains of the Dark Multiverse!</p>
+    </header>
 
-      {/* Mobile Navigation Menu */}
-      <div className={`md:hidden ${isNavOpen ? 'block' : 'hidden'} mt-4`}>
-        <div className="flex flex-col space-y-4">
-          <NavLink href="#home" text="Home" onClick={toggleNav} />
-          <NavLink href="#about" text="About" onClick={toggleNav} />
-          <NavLink href="#features" text="Features" onClick={toggleNav} />
-          <NavLink href="#heroes" text="Heroes" onClick={toggleNav} /> {/* Added Heroes link */}
-          <NavLink href="#team" text="Team" onClick={toggleNav} />
-          <NavLink href="#news" text="News" onClick={toggleNav} />
-          <NavLink href="#contact" text="Contact" onClick={toggleNav} />
-        </div>
-      </div>
-    </nav>
-  );
-};
-
-// Reusable Navigation Link Component
-const NavLink = ({ href, text, onClick }) => (
-  <a
-    href={href}
-    onClick={onClick}
-    className="text-gray-300 hover:text-purple-400 transition-colors duration-300 text-lg font-medium rounded-md px-3 py-2"
-  >
-    {text}
-  </a>
-);
-
-// Hero Section Component
-const HeroSection = () => {
-  return (
-    <section id="home" className="relative h-screen flex items-center justify-center text-center overflow-hidden">
-      {/* Background Video/Image Placeholder */}
-      <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          className="w-full h-full object-cover opacity-30"
-          src="https://assets.mixkit.co/videos/preview/mixkit-fire-explosion-in-slow-motion-1191-large.mp4" // Placeholder video
-          poster="https://placehold.co/1920x1080/1a202c/ffffff?text=Hero+Background" // Placeholder image
-          onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/1920x1080/1a202c/ffffff?text=Hero+Background"; }}
-        >
-          Your browser does not support the video tag.
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 to-transparent"></div>
-      </div>
-
-      {/* Hero Content */}
-      <div className="relative z-10 p-4 max-w-4xl mx-auto">
-        <h1 className="text-5xl md:text-7xl font-extrabold leading-tight mb-6 text-white drop-shadow-lg animate-fade-in-up">
-          Unleash the Mayhem
-        </h1>
-        <p className="text-xl md:text-2xl text-gray-300 mb-10 animate-fade-in-up delay-200">
-          Dive into a world of epic battles, mystical powers, and endless adventure.
-        </p>
-        <div className="flex justify-center space-x-4 animate-fade-in-up delay-400">
-          <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
-            Play Now
-          </button>
-          <button className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
-            Learn More
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-// About Section Component
-const AboutSection = () => {
-  return (
-    <section id="about" className="py-20 px-6 md:px-12 bg-gray-900">
-      <div className="container mx-auto text-center">
-        <h2 className="text-4xl font-bold text-purple-400 mb-12">About Mystic Mayhem</h2>
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="text-left">
-            <p className="text-lg text-gray-300 leading-relaxed mb-6">
-              Mystic Mayhem is a groundbreaking multiplayer online battle arena (MOBA) game that combines fast-paced action with deep strategic gameplay. Choose from a diverse roster of heroes, each with unique abilities and playstyles, and join forces with your teammates to dominate the battlefield.
-            </p>
-            <p className="text-lg text-gray-300 leading-relaxed">
-              Experience stunning graphics, immersive sound design, and a vibrant community. Whether you're a seasoned MOBA veteran or new to the genre, Mystic Mayhem offers an unparalleled gaming experience.
-            </p>
-          </div>
-          <div className="relative rounded-lg overflow-hidden shadow-2xl">
-            <img
-              src="https://placehold.co/600x400/2d3748/ffffff?text=Game+Screenshot"
-              alt="Game Screenshot"
-              className="w-full h-auto rounded-lg"
-              onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/2d3748/ffffff?text=Game+Screenshot"; }}
-            />
-            <div className="absolute inset-0 bg-black opacity-30"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-// Game Features Section Component
-const GameFeaturesSection = () => {
-  const features = [
-    {
-      icon: (
-        <svg className="w-12 h-12 text-purple-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-        </svg>
-      ),
-      title: "Dynamic Combat",
-      description: "Engage in thrilling, real-time battles with intuitive controls and impactful abilities.",
-    },
-    {
-      icon: (
-        <svg className="w-12 h-12 text-purple-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H2v-2a3 3 0 015.356-1.857M9 20v-2m3 2v-2m-3 2H9m3 0h3"></path>
-        </svg>
-      ),
-      title: "Diverse Heroes",
-      description: "Choose from a growing roster of unique heroes, each with distinct powers and lore.",
-    },
-    {
-      icon: (
-        <svg className="w-12 h-12 text-purple-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-        </svg>
-      ),
-      title: "Strategic Depth",
-      description: "Master complex strategies, coordinate with your team, and outwit your opponents.",
-    },
-    {
-      icon: (
-        <svg className="w-12 h-12 text-purple-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-        </svg>
-      ),
-      title: "Stunning Graphics",
-      description: "Immerse yourself in beautifully rendered environments and detailed character models.",
-    },
-  ];
-
-  return (
-    <section id="features" className="py-20 px-6 md:px-12 bg-gray-950">
-      <div className="container mx-auto text-center">
-        <h2 className="text-4xl font-bold text-purple-400 mb-12">Game Features</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => (
-            <div key={index} className="bg-gray-800 p-8 rounded-lg shadow-xl transform hover:scale-105 transition-transform duration-300">
-              {feature.icon}
-              <h3 className="text-2xl font-semibold text-white mb-4">{feature.title}</h3>
-              <p className="text-gray-300">{feature.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-// NEW: Hero Grid Section Component
-const HeroGridSection = () => {
-  const initialHeroes = [
-    {
-      id: 1,
-      name: "Aethelred",
-      role: "Tank",
-      attribute: "Strength",
-      difficulty: "Easy",
-      description: "A stoic guardian, Aethelred leads the charge, absorbing damage and protecting allies with his impenetrable shield.",
-      image: "https://placehold.co/200x250/2d3748/ffffff?text=Hero+1",
-    },
-    {
-      id: 2,
-      name: "Lyra",
-      role: "Mage",
-      attribute: "Intelligence",
-      difficulty: "Medium",
-      description: "Lyra weaves arcane energies, unleashing devastating spells and controlling the battlefield with her mystical prowess.",
-      image: "https://placehold.co/200x250/2d3748/ffffff?text=Hero+2",
-    },
-    {
-      id: 3,
-      name: "Kaelen",
-      role: "Assassin",
-      attribute: "Agility",
-      difficulty: "Hard",
-      description: "A shadowy blade in the night, Kaelen strikes from stealth, eliminating key targets before vanishing into the darkness.",
-      image: "https://placehold.co/200x250/2d3748/ffffff?text=Hero+3",
-    },
-    {
-      id: 4,
-      name: "Seraphina",
-      role: "Support",
-      attribute: "Intelligence",
-      difficulty: "Medium",
-      description: "Seraphina's blessings heal and empower her allies, turning the tide of battle with her divine interventions.",
-      image: "https://placehold.co/200x250/2d3748/ffffff?text=Hero+4",
-    },
-    {
-      id: 5,
-      name: "Ragnar",
-      role: "Fighter",
-      attribute: "Strength",
-      difficulty: "Medium",
-      description: "A berserker of the northern wastes, Ragnar charges into the fray, cleaving through enemies with raw power.",
-      image: "https://placehold.co/200x250/2d3748/ffffff?text=Hero+5",
-    },
-    {
-      id: 6,
-      name: "Zephyr",
-      role: "Marksman",
-      attribute: "Agility",
-      difficulty: "Hard",
-      description: "With unparalleled precision, Zephyr rains down arrows from afar, a deadly force on the battlefield.",
-      image: "https://placehold.co/200x250/2d3748/ffffff?text=Hero+6",
-    },
-    {
-      id: 7,
-      name: "Morgoth",
-      role: "Tank",
-      attribute: "Strength",
-      difficulty: "Medium",
-      description: "A monstrous entity of the deep, Morgoth crushes foes with his immense size and dark magic.",
-      image: "https://placehold.co/200x250/2d3748/ffffff?text=Hero+7",
-    },
-    {
-      id: 8,
-      name: "Elara",
-      role: "Mage",
-      attribute: "Intelligence",
-      difficulty: "Easy",
-      description: "Elara commands the elements, conjuring storms and blizzards to control and devastate her enemies.",
-      image: "https://placehold.co/200x250/2d3748/ffffff?text=Hero+8",
-    },
-  ];
-
-  const [heroes, setHeroes] = useState(initialHeroes);
-  const [sortBy, setSortBy] = useState('name'); // Default sort by name
-  const [hoveredHero, setHoveredHero] = useState(null);
-  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-
-  // Function to sort heroes
-  useEffect(() => {
-    const sortedHeroes = [...initialHeroes].sort((a, b) => {
-      if (sortBy === 'name' || sortBy === 'role' || sortBy === 'attribute') {
-        return a[sortBy].localeCompare(b[sortBy]);
-      } else if (sortBy === 'difficulty') {
-        const difficultyOrder = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
-        return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
-      }
-      return 0;
-    });
-    setHeroes(sortedHeroes);
-  }, [sortBy]); // Re-sort when sortBy changes
-
-  const handleMouseEnter = (hero, e) => {
-    setHoveredHero(hero);
-    // Position tooltip near the cursor
-    setTooltipPosition({ x: e.clientX + 15, y: e.clientY + 15 });
-  };
-
-  const handleMouseLeave = () => {
-    setHoveredHero(null);
-  };
-
-  return (
-    <section id="heroes" className="py-20 px-6 md:px-12 bg-gray-900 relative">
-      <div className="container mx-auto text-center">
-        <h2 className="text-4xl font-bold text-purple-400 mb-12">Our Heroes</h2>
-
-        {/* Sort Controls */}
-        <div className="mb-10 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-          <label htmlFor="sort-select" className="text-gray-300 text-lg">Sort by:</label>
-          <select
-            id="sort-select"
-            className="bg-gray-800 border border-purple-600 text-gray-100 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-          >
+    <div class="controls flex flex-wrap justify-center items-center gap-4 mb-8 p-4 bg-gray-800 rounded-lg shadow-lg">
+        <label for="sort-by" class="text-lg font-semibold text-blue-300">Sort by:</label>
+        <select id="sort-by" class="p-2 rounded-md bg-gray-700 border border-blue-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="name">Name</option>
-            <option value="role">Role</option>
-            <option value="attribute">Attribute</option>
-            <option value="difficulty">Difficulty</option>
-          </select>
-        </div>
+            <option value="class">Class</option>
+            <option value="factions">Factions</option>
+            <option value="tier">Tier Ranking</option>
+        </select>
+        <button id="sort-direction" class="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500">Ascending</button>
+    </div>
 
-        {/* Heroes Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {heroes.map((hero) => (
-            <div
-              key={hero.id}
-              className="relative bg-gray-800 p-6 rounded-lg shadow-xl transform hover:scale-105 transition-transform duration-300 cursor-pointer overflow-hidden"
-              onMouseEnter={(e) => handleMouseEnter(hero, e)}
-              onMouseLeave={handleMouseLeave}
-            >
-              <img
-                src={hero.image}
-                alt={hero.name}
-                className="w-full h-64 object-cover rounded-md mb-4 border-2 border-purple-600"
-                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/200x250/2d3748/ffffff?text=Hero"; }}
-              />
-              <h3 className="text-2xl font-semibold text-white mb-2">{hero.name}</h3>
-              <p className="text-purple-300 text-lg">{hero.role}</p>
-              <p className="text-gray-400 text-sm mt-2">Attribute: {hero.attribute} | Difficulty: {hero.difficulty}</p>
+    <div id="character-grid" class="character-grid w-full max-w-6xl mx-auto">
+        <!-- Character portraits will be injected here by JavaScript -->
+    </div>
 
-              {/* Tooltip */}
-              {hoveredHero && hoveredHero.id === hero.id && (
-                <div
-                  className="absolute z-50 bg-gray-700 text-white p-4 rounded-lg shadow-2xl border border-purple-500 max-w-xs text-left"
-                  style={{ left: tooltipPosition.x, top: tooltipPosition.y, transform: 'translate(-50%, -100%)' }}
-                >
-                  <h4 className="font-bold text-purple-300 mb-2">{hoveredHero.name} ({hoveredHero.role})</h4>
-                  <p className="text-sm text-gray-200 mb-2">{hoveredHero.description}</p>
-                  <p className="text-xs text-gray-400">Attribute: {hoveredHero.attribute} | Difficulty: {hoveredHero.difficulty}</p>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Placeholder Champion Data (YOU SHOULD REPLACE THIS WITH REAL AND MORE EXTENSIVE DATA)
+            // Image URLs here are placeholders for portrait images.
+            // Remember to update these with your actual image URLs, especially if hosted on GitHub!
+            let champions = [
+                {
+                    id: 'connerkent',
+                    name: 'Conner Kent',
+                    class: 'Supporter',
+                    factions: ['Superman Family', 'Metahuman'],
+                    tier: 'A+',
+                    gameModes: ['placeholder'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Conner_Kent.png' // Replace with your image URL
+                },
+                {
+                    id: 'krypto',
+                    name: 'Krypto',
+                    class: 'Supporter',
+                    factions: ['Superman Family', 'Metahuman'],
+                    tier: 'A+',
+                    gameModes: ['placeholder'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Krypto.png' // Replace with your image URL
+                },
+                {
+                    id: 'superman',
+                    name: 'Superman',
+                    class: 'Warrior',
+                    factions: ['Superman Family', 'Metahuman'],
+                    tier: 'S',
+                    gameModes: ['placeholder'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/superman.png' // Replace with your image URL
+                },
+                {
+                    id: 'supergirl',
+                    name: 'Supergirl',
+                    class: 'Warrior',
+                    factions: ['Superman Family', 'Metahuman'],
+                    tier: 'S',
+                    gameModes: ['placeholder'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Supergirl.png' // Replace with your image URL
+                },
+                {
+                    id: 'deathstroke',
+                    name: 'Deathstroke',
+                    class: 'Assassin',
+                    factions: ['Villains', 'Mercenaries'],
+                    tier: 'S',
+                    gameModes: ['Bounty Hunts', 'PvP Arena'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/batman.png' // Replace with your image URL
+            }
+                // Add more champions here following the same structure
+            ];
 
+            const characterGrid = document.getElementById('character-grid');
+            const sortBySelect = document.getElementById('sort-by');
+            const sortDirectionButton = document.getElementById('sort-direction');
 
-// Team Section Component
-const TeamSection = () => {
-  const teamMembers = [
-    {
-      name: "Alice Johnson",
-      role: "Lead Developer",
-      image: "https://placehold.co/150x150/4a5568/ffffff?text=Alice",
-    },
-    {
-      name: "Bob Williams",
-      role: "Game Designer",
-      image: "https://placehold.co/150x150/4a5568/ffffff?text=Bob",
-    },
-    {
-      name: "Charlie Brown",
-      role: "Art Director",
-      image: "https://placehold.co/150x150/4a5568/ffffff?text=Charlie",
-    },
-    {
-      name: "Diana Prince",
-      role: "Community Manager",
-      image: "https://placehold.co/150x150/4a5568/ffffff?text=Diana",
-    },
-  ];
+            let currentSortKey = 'name';
+            let sortAscending = true; // true for ascending, false for descending
 
-  return (
-    <section id="team" className="py-20 px-6 md:px-12 bg-gray-950">
-      <div className="container mx-auto text-center">
-        <h2 className="text-4xl font-bold text-purple-400 mb-12">Meet the Team</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {teamMembers.map((member, index) => (
-            <div key={index} className="bg-gray-800 p-8 rounded-lg shadow-xl transform hover:scale-105 transition-transform duration-300">
-              <img
-                src={member.image}
-                alt={member.name}
-                className="w-32 h-32 rounded-full mx-auto mb-6 object-cover border-4 border-purple-500"
-                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/150x150/4a5568/ffffff?text=Team"; }}
-              />
-              <h3 className="text-2xl font-semibold text-white mb-2">{member.name}</h3>
-              <p className="text-purple-300 text-lg">{member.role}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
+            /**
+             * Renders the character cards into the grid.
+             * @param {Array<Object>} chars - The array of champion objects to render.
+             */
+            function renderCharacters(chars) {
+                characterGrid.innerHTML = ''; // Clear existing content to re-render
+                chars.forEach(champion => {
+                    const card = document.createElement('div');
+                    card.classList.add('character-card', 'rounded-xl', 'p-3', 'flex', 'flex-col', 'items-center', 'justify-between', 'transform', 'hover:scale-105', 'transition-transform', 'duration-200', 'ease-in-out', 'shadow-lg', 'bg-gradient-to-br', 'from-blue-900', 'to-purple-900'); // Added Tailwind classes for styling
 
-// News Section Component
-const NewsSection = () => {
-  const newsPosts = [
-    {
-      title: "Major Content Update Announced!",
-      date: "July 25, 2025",
-      summary: "Get ready for new heroes, maps, and game modes coming next month!",
-      image: "https://placehold.co/300x200/2d3748/ffffff?text=News+1",
-    },
-    {
-      title: "Esports Tournament Kicks Off",
-      date: "July 20, 2025",
-      summary: "Watch the best teams compete for glory and massive prizes.",
-      image: "https://placehold.co/300x200/2d3748/ffffff?text=News+2",
-    },
-    {
-      title: "Patch Notes v1.2 Released",
-      date: "July 15, 2025",
-      summary: "Balance changes, bug fixes, and quality-of-life improvements are here.",
-      image: "https://placehold.co/300x200/2d3748/ffffff?text=News+3",
-    },
-  ];
+                    // Create the tooltip content
+                    const tooltipContent = `
+                        <p><strong>Class:</strong> ${champion.class}</p>
+                        <p><strong>Factions:</strong> ${champion.factions.join(', ')}</p>
+                        <p><strong>Tier:</strong> ${champion.tier}</p>
+                        <p><strong>Best Modes:</strong> ${champion.gameModes.join(', ')}</p>
+                    `;
 
-  return (
-    <section id="news" className="py-20 px-6 md:px-12 bg-gray-900">
-      <div className="container mx-auto text-center">
-        <h2 className="text-4xl font-bold text-purple-400 mb-12">Latest News</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {newsPosts.map((post, index) => (
-            <div key={index} className="bg-gray-800 rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300">
-              <img
-                src={post.image}
-                alt={post.title}
-                className="w-full h-48 object-cover"
-                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/300x200/2d3748/ffffff?text=News"; }}
-              />
-              <div className="p-6 text-left">
-                <h3 className="text-2xl font-semibold text-white mb-2">{post.title}</h3>
-                <p className="text-gray-400 text-sm mb-4">{post.date}</p>
-                <p className="text-gray-300">{post.summary}</p>
-                <a href="#" className="mt-4 inline-block text-purple-400 hover:text-purple-300 font-semibold">
-                  Read More &rarr;
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
+                    card.innerHTML = `
+                        <img src="${champion.image}" alt="${champion.name} Portrait" class="w-full h-[160px] object-cover border-4 border-red-500 mb-1">
+                        <h3 class="text-lg font-semibold text-blue-200 text-center">${champion.name}</h3>
+                        <div class="tooltip absolute bg-gray-800 text-white text-sm rounded-lg p-3 shadow-xl z-10 opacity-0 invisible transition-all duration-300 ease-in-out">
+                            ${tooltipContent}
+                            <div class="tooltip-arrow absolute w-0 h-0 border-l-8 border-r-8 border-t-8 border-solid border-transparent border-t-gray-800 bottom-[-8px] left-1/2 -translate-x-1/2"></div>
+                        </div>
+                    `;
+                    characterGrid.appendChild(card);
+                });
+            }
 
-// Footer Component
-const Footer = () => {
-  return (
-    <footer className="bg-gray-900 py-10 px-6 md:px-12 text-center text-gray-400">
-      <div className="container mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-          <div className="mb-4 md:mb-0">
-            <a href="#" className="text-2xl font-bold text-purple-400 hover:text-purple-300 transition-colors duration-300">
-              Mystic Mayhem
-            </a>
-            <p className="text-sm mt-2">&copy; {new Date().getFullYear()} Mystic Mayhem. All rights reserved.</p>
-          </div>
-          <div className="flex space-x-6">
-            <SocialLink href="#" iconPath="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /> {/* Facebook */}
-            <SocialLink href="#" iconPath="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" /> {/* Twitter */}
-            <SocialLink href="#" iconPath="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zM19.5 8.25V5.75A2.25 2.25 0 0017.25 3.5h-10.5A2.25 2.25 0 004.5 5.75v10.5A2.25 2.25 0 006.75 18.5h10.5A2.25 2.25 0 0019.5 16.25V13.75" /> {/* Instagram */}
-            <SocialLink href="#" iconPath="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /> {/* Discord */}
-          </div>
-        </div>
-        <div className="border-t border-gray-700 pt-6">
-          <p className="text-sm">
-            <a href="#" className="hover:text-white transition-colors duration-300">Privacy Policy</a> |
-            <a href="#" className="ml-2 hover:text-white transition-colors duration-300">Terms of Service</a> |
-            <a href="#" className="ml-2 hover:text-white transition-colors duration-300">Cookie Policy</a>
-          </p>
-        </div>
-      </div>
-    </footer>
-  );
-};
+            /**
+             * Sorts the champions array based on the current sort key and direction.
+             */
+            function sortChampions() {
+                let sortedChampions = [...champions]; // Create a shallow copy to avoid mutating the original array
 
-// Reusable Social Link Component
-const SocialLink = ({ href, iconPath }) => (
-  <a href={href} className="text-gray-400 hover:text-purple-400 transition-colors duration-300">
-    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d={iconPath}></path>
-    </svg>
-  </a>
-);
+                sortedChampions.sort((a, b) => {
+                    let valA, valB;
 
-export default App;
+                    if (currentSortKey === 'factions') {
+                        // For factions, sort by the first faction alphabetically.
+                        // If multiple factions, it will sort based on the lexicographical order of the joined string.
+                        // To ensure consistent sorting, we sort the internal factions array first.
+                        valA = a.factions.length > 0 ? a.factions.slice().sort().join(', ').toLowerCase() : '';
+                        valB = b.factions.length > 0 ? b.factions.slice().sort().join(', ').toLowerCase() : '';
+                    } else if (currentSortKey === 'tier') {
+                        // Custom sort order for tier rankings (S+, S, A+, A, B+, B, C, D...)
+                        const tierOrder = {
+                            'S+': 0, 'S': 1, 'A+': 2, 'A': 3, 'B+': 4, 'B': 5, 'C': 6, 'D': 7,
+                            // Add more tiers if needed
+                        };
+                        valA = tierOrder[a.tier] !== undefined ? tierOrder[a.tier] : Infinity; // Assign high value for unknown tiers
+                        valB = tierOrder[b.tier] !== undefined ? tierOrder[b.tier] : Infinity;
+                    } else {
+                        // Default alphabetical sort for name and class
+                        valA = String(a[currentSortKey]).toLowerCase();
+                        valB = String(b[currentSortKey]).toLowerCase();
+                    }
+
+                    if (valA < valB) {
+                        return sortAscending ? -1 : 1;
+                    }
+                    if (valA > valB) {
+                        return sortAscending ? 1 : -1;
+                    }
+                    return 0; // Values are equal
+                });
+
+                renderCharacters(sortedChampions);
+            }
+
+            // Event listener for sorting key change
+            sortBySelect.addEventListener('change', (event) => {
+                currentSortKey = event.target.value;
+                sortChampions();
+            });
+
+            // Event listener for sort direction toggle
+            sortDirectionButton.addEventListener('click', () => {
+                sortAscending = !sortAscending;
+                sortDirectionButton.textContent = sortAscending ? 'Ascending' : 'Descending';
+                sortChampions();
+            });
+
+            // Initial render of champions when the page loads
+            sortChampions();
+        });
+    </script>
+</body>
+</html>
+
 
