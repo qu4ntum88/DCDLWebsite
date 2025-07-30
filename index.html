@@ -181,6 +181,7 @@
     </header>
 
     <div class="controls flex flex-wrap justify-center items-center gap-4 mb-8 p-4 bg-gray-800 rounded-lg shadow-lg">
+        <!-- Primary Sort -->
         <label for="sort-by" class="text-lg font-semibold text-blue-300">Sort by:</label>
         <select id="sort-by" class="p-2 rounded-md bg-gray-700 border border-blue-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="name">Name</option>
@@ -189,6 +190,69 @@
             <option value="tier">Tier Ranking</option>
         </select>
         <button id="sort-direction" class="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500">Ascending</button>
+
+        <div class="w-full h-px bg-gray-700 my-4 md:hidden"></div> <!-- Separator for mobile -->
+
+        <!-- Filter Dropdowns -->
+        <label for="filter-class" class="text-lg font-semibold text-blue-300">Class:</label>
+        <select id="filter-class" class="p-2 rounded-md bg-gray-700 border border-blue-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="All">All Classes</option>
+            <option value="Assassin">Assassin</option>
+            <option value="Firepower">Firepower</option>
+            <option value="Guardian">Guardian</option>
+            <option value="Intimidator">Intimidator</option>
+            <option value="Magical">Magical</option>
+            <option value="Supporter">Supporter</option>
+            <option value="Warrior">Warrior</option>
+        </select>
+
+        <label for="filter-factions" class="text-lg font-semibold text-blue-300">Faction:</label>
+        <select id="filter-factions" class="p-2 rounded-md bg-gray-700 border border-blue-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="All">All Factions</option>
+            <option value="Arkham's Most Wanted">Arkham's Most Wanted</option>
+            <option value="Amazons">Amazons</option>
+            <option value="Atlantean">Atlantean</option>
+            <option value="Bat Family">Bat Family</option>
+            <option value="Birds of Prey">Birds of Prey</option>
+            <option value="Energy Wielder">Energy Wielder</option>
+            <option value="Green Lantern Corps">Green Lantern Corps</option>
+            <option value="Justice League">Justice League</option>
+            <option value="Justice League Dark">Justice League Dark</option>
+            <option value="League of Assassins">League of Assassins</option>
+            <option value="Legion of Doom">Legion of Doom</option>
+            <option value="Metahuman">Metahuman</option>
+            <option value="Outsiders">Outsiders</option>
+            <option value="Suicide Squad">Suicide Squad</option>
+            <option value="Superman Family">Superman Family</option>
+            <option value="The Flash Family">The Flash Family</option>
+            <option value="Titans">Titans</option>
+            <option value="Weapon Master">Weapon Master</option>
+        </select>
+
+        <label for="filter-tier" class="text-lg font-semibold text-blue-300">Tier:</label>
+        <select id="filter-tier" class="p-2 rounded-md bg-gray-700 border border-blue-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="All">All Tiers</option>
+            <option value="S">S</option>
+            <option value="A+">A+</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+        </select>
+
+        <label for="filter-game-modes" class="text-lg font-semibold text-blue-300">Game Mode:</label>
+        <select id="filter-game-modes" class="p-2 rounded-md bg-gray-700 border border-blue-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="All">All Modes</option>
+            <option value="Combat Cycle">Combat Cycle</option>
+            <option value="Training Simulator">Training Simulator</option>
+            <option value="Meta Brawl">Meta Brawl</option>
+            <option value="3v3">3v3</option>
+            <option value="Vehicle Combat">Vehicle Combat</option>
+            <option value="ACN">ACN</option>
+            <option value="Story Mode">Story Mode</option>
+        </select>
+
+        <button id="reset-filters" class="px-4 py-2 rounded-md bg-gray-600 text-white font-semibold hover:bg-gray-700 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500">Reset Filters</button>
     </div>
 
     <div id="character-grid" class="character-grid w-full max-w-6xl mx-auto">
@@ -197,9 +261,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Placeholder Champion Data (YOU SHOULD REPLACE THIS WITH REAL AND MORE EXTENSIVE DATA)
-            // Image URLs here are placeholders for portrait images.
-            // Remember to update these with your actual image URLs, especially if hosted on GitHub!
+            // Champion Data - Updated with more diverse classes, factions, tiers, and game modes
             let champions = [
                 {
                     id: 'connerkent',
@@ -207,8 +269,8 @@
                     class: 'Supporter',
                     factions: ['Superman Family', 'Metahuman'],
                     tier: 'A+',
-                    gameModes: ['placeholder'],
-                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Conner_Kent.png' // Replace with your image URL
+                    gameModes: ['Combat Cycle', 'Story Mode'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Conner_Kent.png'
                 },
                 {
                     id: 'krypto',
@@ -216,45 +278,190 @@
                     class: 'Supporter',
                     factions: ['Superman Family', 'Metahuman'],
                     tier: 'A+',
-                    gameModes: ['placeholder'],
-                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Krypto.png' // Replace with your image URL
+                    gameModes: ['Training Simulator', '3v3'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Krypto.png'
                 },
                 {
                     id: 'superman',
                     name: 'Superman',
                     class: 'Warrior',
-                    factions: ['Superman Family', 'Metahuman'],
+                    factions: ['Superman Family', 'Justice League', 'Metahuman'],
                     tier: 'S',
-                    gameModes: ['placeholder'],
-                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/superman.png' // Replace with your image URL
+                    gameModes: ['Story Mode', 'PvP Arena', 'Raids'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/superman.png'
                 },
                 {
                     id: 'supergirl',
                     name: 'Supergirl',
                     class: 'Warrior',
-                    factions: ['Superman Family', 'Metahuman'],
+                    factions: ['Superman Family', 'Justice League', 'Metahuman'],
                     tier: 'S',
-                    gameModes: ['placeholder'],
-                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Supergirl.png' // Replace with your image URL
+                    gameModes: ['Combat Cycle', 'Meta Brawl'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Supergirl.png'
                 },
                 {
                     id: 'deathstroke',
                     name: 'Deathstroke',
                     class: 'Assassin',
-                    factions: ['Villains', 'Mercenaries'],
+                    factions: ['Villains', 'Mercenaries', 'League of Assassins'],
                     tier: 'S',
-                    gameModes: ['Bounty Hunts', 'PvP Arena'],
-                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/batman.png' // Replace with your image URL
-            }
-                // Add more champions here following the same structure
+                    gameModes: ['Bounty Hunts', 'PvP Arena', '3v3'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Deathstroke.png'
+                },
+                {
+                    id: 'batman',
+                    name: 'Batman',
+                    class: 'Tactician',
+                    factions: ['Justice League', 'Bat Family', 'Gotham Knights'],
+                    tier: 'S+',
+                    gameModes: ['PvP Arena', 'Story Mode', 'Raids'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Batman.png'
+                },
+                {
+                    id: 'wonder_woman',
+                    name: 'Wonder Woman',
+                    class: 'Support',
+                    factions: ['Justice League', 'Amazons'],
+                    tier: 'A+',
+                    gameModes: ['PvP Arena', 'Guild Wars', 'Combat Cycle'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Wonder_Woman.png'
+                },
+                {
+                    id: 'the_joker',
+                    name: 'The Joker',
+                    class: 'Intimidator',
+                    factions: ['Villains', 'Gotham Rogues', 'Arkham\'s Most Wanted'],
+                    tier: 'S+',
+                    gameModes: ['PvP Arena', 'Dark Multiverse', 'Story Mode'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/The_Joker.png'
+                },
+                {
+                    id: 'harley_quinn',
+                    name: 'Harley Quinn',
+                    class: 'Striker',
+                    factions: ['Villains', 'Gotham Rogues', 'Suicide Squad'],
+                    tier: 'A',
+                    gameModes: ['Story Mode', 'PvE Challenges'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Harley_Quinn.png'
+                },
+                {
+                    id: 'the_flash',
+                    name: 'The Flash',
+                    class: 'Speedster',
+                    factions: ['Justice League', 'Metahuman', 'The Flash Family'],
+                    tier: 'B+',
+                    gameModes: ['Time Trials', 'PvP Arena', 'Combat Cycle'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/The_Flash.png'
+                },
+                {
+                    id: 'green_lantern',
+                    name: 'Green Lantern',
+                    class: 'Healer',
+                    factions: ['Justice League', 'Green Lantern Corps', 'Energy Wielder'],
+                    tier: 'S',
+                    gameModes: ['Support Missions', 'PvE Raids', 'Story Mode'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Green_Lantern.png'
+                },
+                {
+                    id: 'aquaman',
+                    name: 'Aquaman',
+                    class: 'Tank',
+                    factions: ['Justice League', 'Atlantean'],
+                    tier: 'A',
+                    gameModes: ['Underwater Combat', 'PvP Arena', 'Raids'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Aquaman.png'
+                },
+                {
+                    id: 'lex_luthor',
+                    name: 'Lex Luthor',
+                    class: 'Support',
+                    factions: ['Villains', 'Legion of Doom', 'Weapon Master'],
+                    tier: 'A+',
+                    gameModes: ['Strategic Battles', 'Resource Gathering', 'Story Mode'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Lex_Luthor.png'
+                },
+                {
+                    id: 'robin',
+                    name: 'Robin',
+                    class: 'Assassin',
+                    factions: ['Bat Family', 'Titans'],
+                    tier: 'B',
+                    gameModes: ['Training Simulator', 'Story Mode'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Robin.png'
+                },
+                {
+                    id: 'nightwing',
+                    name: 'Nightwing',
+                    class: 'Warrior',
+                    factions: ['Bat Family', 'Titans'],
+                    tier: 'A',
+                    gameModes: ['Combat Cycle', 'PvP Arena'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Nightwing.png'
+                },
+                {
+                    id: 'starfire',
+                    name: 'Starfire',
+                    class: 'Firepower',
+                    factions: ['Titans', 'Outsiders'],
+                    tier: 'A+',
+                    gameModes: ['Meta Brawl', '3v3'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Starfire.png'
+                },
+                {
+                    id: 'cyborg',
+                    name: 'Cyborg',
+                    class: 'Warrior',
+                    factions: ['Justice League', 'Titans', 'Metahuman'],
+                    tier: 'B+',
+                    gameModes: ['Vehicle Combat', 'Story Mode'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Cyborg.png'
+                },
+                {
+                    id: 'raven',
+                    name: 'Raven',
+                    class: 'Magical',
+                    factions: ['Titans', 'Justice League Dark'],
+                    tier: 'A',
+                    gameModes: ['Story Mode', 'PvE Challenges'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Raven.png'
+                },
+                {
+                    id: 'bane',
+                    name: 'Bane',
+                    class: 'Guardian',
+                    factions: ['Villains', 'Arkham\'s Most Wanted'],
+                    tier: 'C',
+                    gameModes: ['Training Simulator', '3v3'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Bane.png'
+                },
+                {
+                    id: 'poison_ivy',
+                    name: 'Poison Ivy',
+                    class: 'Support',
+                    factions: ['Villains', 'Gotham Rogues'],
+                    tier: 'A+',
+                    gameModes: ['Strategic Battles', 'ACN'],
+                    image: 'https://raw.githubusercontent.com/qu4ntum88/DCDLWebsite/master/public/Champion%20Avatars/Poison_Ivy.png'
+                }
             ];
 
             const characterGrid = document.getElementById('character-grid');
             const sortBySelect = document.getElementById('sort-by');
             const sortDirectionButton = document.getElementById('sort-direction');
 
+            // New filter dropdowns and reset button
+            const filterClassSelect = document.getElementById('filter-class');
+            const filterFactionsSelect = document.getElementById('filter-factions');
+            const filterTierSelect = document.getElementById('filter-tier');
+            const filterGameModesSelect = document.getElementById('filter-game-modes');
+            const resetFiltersButton = document.getElementById('reset-filters');
+
             let currentSortKey = 'name';
             let sortAscending = true; // true for ascending, false for descending
+            let currentFilterClass = 'All';
+            let currentFilterFaction = 'All';
+            let currentFilterTier = 'All';
+            let currentFilterGameMode = 'All';
 
             /**
              * Renders the character cards into the grid.
@@ -287,27 +494,43 @@
             }
 
             /**
-             * Sorts the champions array based on the current sort key and direction.
+             * Filters and sorts the champions array based on current selections.
              */
-            function sortChampions() {
-                let sortedChampions = [...champions]; // Create a shallow copy to avoid mutating the original array
+            function filterAndSortChampions() {
+                let filteredChampions = champions.filter(champion => {
+                    // Filter by Class
+                    if (currentFilterClass !== 'All' && champion.class !== currentFilterClass) {
+                        return false;
+                    }
+                    // Filter by Faction (check if the champion has the selected faction)
+                    if (currentFilterFaction !== 'All' && !champion.factions.includes(currentFilterFaction)) {
+                        return false;
+                    }
+                    // Filter by Tier
+                    if (currentFilterTier !== 'All' && champion.tier !== currentFilterTier) {
+                        return false;
+                    }
+                    // Filter by Game Mode (check if the champion has the selected game mode)
+                    if (currentFilterGameMode !== 'All' && !champion.gameModes.includes(currentFilterGameMode)) {
+                        return false;
+                    }
+                    return true; // Champion passes all filters
+                });
 
-                sortedChampions.sort((a, b) => {
+                // Now sort the filtered champions
+                filteredChampions.sort((a, b) => {
                     let valA, valB;
 
                     if (currentSortKey === 'factions') {
                         // For factions, sort by the first faction alphabetically.
-                        // If multiple factions, it will sort based on the lexicographical order of the joined string.
-                        // To ensure consistent sorting, we sort the internal factions array first.
                         valA = a.factions.length > 0 ? a.factions.slice().sort().join(', ').toLowerCase() : '';
                         valB = b.factions.length > 0 ? b.factions.slice().sort().join(', ').toLowerCase() : '';
                     } else if (currentSortKey === 'tier') {
                         // Custom sort order for tier rankings (S+, S, A+, A, B+, B, C, D...)
                         const tierOrder = {
                             'S+': 0, 'S': 1, 'A+': 2, 'A': 3, 'B+': 4, 'B': 5, 'C': 6, 'D': 7,
-                            // Add more tiers if needed
                         };
-                        valA = tierOrder[a.tier] !== undefined ? tierOrder[a.tier] : Infinity; // Assign high value for unknown tiers
+                        valA = tierOrder[a.tier] !== undefined ? tierOrder[a.tier] : Infinity;
                         valB = tierOrder[b.tier] !== undefined ? tierOrder[b.tier] : Infinity;
                     } else {
                         // Default alphabetical sort for name and class
@@ -324,26 +547,68 @@
                     return 0; // Values are equal
                 });
 
-                renderCharacters(sortedChampions);
+                renderCharacters(filteredChampions);
             }
 
-            // Event listener for sorting key change
+            // Event listeners for sorting controls
             sortBySelect.addEventListener('change', (event) => {
                 currentSortKey = event.target.value;
-                sortChampions();
+                filterAndSortChampions();
             });
 
-            // Event listener for sort direction toggle
             sortDirectionButton.addEventListener('click', () => {
                 sortAscending = !sortAscending;
                 sortDirectionButton.textContent = sortAscending ? 'Ascending' : 'Descending';
-                sortChampions();
+                filterAndSortChampions();
+            });
+
+            // Event listeners for filter dropdowns
+            filterClassSelect.addEventListener('change', (event) => {
+                currentFilterClass = event.target.value;
+                filterAndSortChampions();
+            });
+
+            filterFactionsSelect.addEventListener('change', (event) => {
+                currentFilterFaction = event.target.value;
+                filterAndSortChampions();
+            });
+
+            filterTierSelect.addEventListener('change', (event) => {
+                currentFilterTier = event.target.value;
+                filterAndSortChampions();
+            });
+
+            filterGameModesSelect.addEventListener('change', (event) => {
+                currentFilterGameMode = event.target.value;
+                filterAndSortChampions();
+            });
+
+            // Event listener for reset filters button
+            resetFiltersButton.addEventListener('click', () => {
+                // Reset all filter dropdowns to 'All'
+                filterClassSelect.value = 'All';
+                filterFactionsSelect.value = 'All';
+                filterTierSelect.value = 'All';
+                filterGameModesSelect.value = 'All';
+
+                // Reset filter state variables
+                currentFilterClass = 'All';
+                currentFilterFaction = 'All';
+                currentFilterTier = 'All';
+                currentFilterGameMode = 'All';
+
+                // Reset primary sort to default
+                sortBySelect.value = 'name';
+                currentSortKey = 'name';
+                sortAscending = true;
+                sortDirectionButton.textContent = 'Ascending';
+
+                filterAndSortChampions(); // Re-filter and re-sort
             });
 
             // Initial render of champions when the page loads
-            sortChampions();
+            filterAndSortChampions();
         });
     </script>
 </body>
 </html>
-
